@@ -198,6 +198,25 @@ section{padding:80px 60px}
 .acard:hover .act{color:var(--wh)}
 .acard:hover .acbar{background:var(--wh);width:36px}
 .acard:hover .acd{color:rgba(255,255,255,.55)}
+/* ── ACHIEVEMENT CROSS-HOVER: one dark, other washes white ── */
+/* Hovering the ACARD (₹50K) → IIM afeat washes to pure white overlay */
+#achievements:has(.acard:hover) .afeat{
+  background:var(--wh);
+  transition:background .4s cubic-bezier(.76,0,.24,1),box-shadow .4s,transform .4s;
+  box-shadow:0 24px 60px rgba(0,0,0,.08);transform:translateY(-2px);
+}
+#achievements:has(.acard:hover) .afeat .aft{color:var(--dk);transition:color .35s}
+#achievements:has(.acard:hover) .afeat .afd{color:var(--md);transition:color .35s}
+#achievements:has(.acard:hover) .afeat .afn{color:rgba(0,0,0,.18);transition:color .35s}
+/* Hovering the AFEAT (IIM) → ₹50K acard washes to bright white glow */
+#achievements .afeat:hover ~ .agrid .acard{
+  background:var(--wh);
+  box-shadow:0 0 0 1.5px rgba(0,0,0,.06),0 20px 48px rgba(0,0,0,.06);
+  transform:translateY(-4px);
+  transition:background .4s,box-shadow .4s,transform .4s;
+}
+#achievements .afeat:hover ~ .agrid .acard .acbar{background:var(--dk);width:30px}
+
 
 /* PROJECTS */
 #projects{background:var(--wh)}
@@ -520,14 +539,135 @@ section{padding:96px 60px}
 .shd{margin-bottom:52px}
 #home{padding:110px 60px 60px}
 #contact{padding:96px 60px 80px}
+/* Desktop: right-side clearance so content never slides under fp-nav dial (46px wide + 24px from edge = 70px used, 88px clears it) */
+@media(min-width:961px){
+  section{padding-right:88px}
+  #home{padding-right:88px}
+  #contact{padding-right:88px}
+}
 
 /* ── Contain layers above particles ── */
 nav,section,footer{position:relative;z-index:1}
 
+
+/* ═══════════════════════════════════════════════════════════════
+   FULL-PAGE SCROLL ENGINE
+   ═══════════════════════════════════════════════════════════════ */
+html,body{overflow:hidden!important;height:100%!important;scroll-behavior:auto!important}
+
+/* Base slide */
+.fp-section{
+  position:fixed!important;top:0;left:0;
+  width:100%;height:100vh!important;
+  overflow-y:hidden;overflow-x:hidden;
+  backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  will-change:transform;
+  transform:translateY(100%);
+  z-index:1;
+}
+.fp-section.fp-active{transform:translateY(0)!important;z-index:2!important}
+.fp-transitioning .fp-section{transition:transform .72s cubic-bezier(.76,0,.24,1)!important}
+
+/* Explicit section backgrounds (needed for fixed positioning) */
+#home,#education,#projects,#skills{background:var(--wh)!important}
+#about,#achievements,#experience,#languages{background:var(--lt)!important}
+#contact{background:var(--dk)!important}
+
+/* Hide dividers */
+.dvd{display:none!important}
+
+/* Transition overlay flash */
+#fp-overlay{
+  position:fixed;inset:0;z-index:50;
+  background:rgba(30,30,30,.06);
+  opacity:0;pointer-events:none;
+  transition:opacity .22s ease;
+}
+#fp-overlay.fp-flash{opacity:1}
+
+/* ── SIGNATURE SECTION INDICATOR ── */
+#fp-nav{
+  position:fixed;right:24px;top:50%;
+  transform:translateY(-50%);
+  z-index:98;
+  display:flex;flex-direction:column;align-items:center;gap:12px;
+  pointer-events:none;
+  user-select:none;
+}
+/* Circular arc progress dial */
+#fp-dial{
+  position:relative;width:46px;height:46px;flex-shrink:0;
+}
+#fp-arc{overflow:visible;display:block}
+.fp-arc-bg{fill:none;stroke:rgba(30,30,30,.09);stroke-width:1}
+.fp-arc-ring{
+  fill:none;stroke:var(--dk);stroke-width:1.5;stroke-linecap:round;
+  stroke-dasharray:122.52;stroke-dashoffset:122.52;
+  transform-origin:50% 50%;transform:rotate(-90deg);
+  transition:stroke-dashoffset .65s cubic-bezier(.65,0,.35,1);
+}
+/* Bold section number centered in dial */
+#fp-num{
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--D);font-size:13px;font-weight:800;
+  color:var(--dk);letter-spacing:-.5px;line-height:1;
+}
+/* Tiny pulsing dot that orbits the ring at arc end-point */
+#fp-orb{
+  position:absolute;top:0;left:50%;
+  width:5px;height:5px;margin-left:-2.5px;margin-top:-2.5px;
+  border-radius:50%;background:var(--dk);
+  transform-origin:50% 25.5px;
+  transition:transform .65s cubic-bezier(.65,0,.35,1);
+  box-shadow:0 0 0 2.5px rgba(30,30,30,.08);
+}
+/* Vertical section name — slides up on change */
+#fp-name{
+  writing-mode:vertical-rl;text-orientation:mixed;
+  transform:rotate(180deg);
+  font-family:var(--B);font-size:8.5px;font-weight:500;
+  letter-spacing:2.8px;text-transform:uppercase;
+  color:rgba(30,30,30,.38);
+  height:68px;overflow:hidden;position:relative;
+}
+#fp-name span{
+  position:absolute;left:0;right:0;text-align:center;
+  transition:opacity .38s cubic-bezier(.16,1,.3,1),transform .38s cubic-bezier(.16,1,.3,1);
+}
+#fp-name .fp-n-in {opacity:1;transform:translateY(0)}
+#fp-name .fp-n-out{opacity:0;transform:translateY(-10px)}
+/* Total ghost */
+#fp-tot{
+  font-family:var(--B);font-size:8px;font-weight:400;
+  letter-spacing:1px;color:rgba(30,30,30,.22);
+}
+/* Dark-section flip */
+body.fp-dark .fp-arc-bg{stroke:rgba(255,255,255,.14)}
+body.fp-dark .fp-arc-ring{stroke:var(--wh)}
+body.fp-dark #fp-orb{background:var(--wh);box-shadow:0 0 0 2.5px rgba(255,255,255,.1)}
+body.fp-dark #fp-num{color:var(--wh)}
+body.fp-dark #fp-name{color:rgba(255,255,255,.4)}
+body.fp-dark #fp-tot{color:rgba(255,255,255,.2)}
+@media(max-width:960px){#fp-nav{display:none!important}}
+/* ─────────────────────────────────────────────────────────────── */
 </style>
 </head>
 <body>
 <div id="bg-particles"><canvas id="bgCanvas"></canvas></div>
+<div id="fp-overlay"></div>
+<div id="fp-nav">
+  <div id="fp-dial">
+    <svg id="fp-arc" viewBox="0 0 46 46" width="46" height="46">
+      <circle class="fp-arc-bg" cx="23" cy="23" r="19.5"/>
+      <circle class="fp-arc-ring" id="fp-arc-ring" cx="23" cy="23" r="19.5"/>
+    </svg>
+    <div id="fp-num">01</div>
+    <div id="fp-orb"></div>
+  </div>
+  <div id="fp-name"><span class="fp-n-in">Home</span></div>
+  <div id="fp-tot">/ 09</div>
+</div>
 
 <div id="cur"></div>
 <div id="curR"></div>
@@ -656,7 +796,7 @@ nav,section,footer{position:relative;z-index:1}
     </div>
   </div>
   <div class="agrid">
-    <div class="acard rv d1"><div class="acn">02</div><span class="aci">&#128176;</span><div class="act">&#8377;50,000 Single-Day Revenue</div><div class="acbar"></div><div class="acd">Generated &#8377;50,000 in a single day at Snitch, including a personal solo bill of &#8377;12,000 &#8212; the highest in the team.</div></div>
+    <div class="acard"><div class="acn">02</div><span class="aci">&#128176;</span><div class="act">&#8377;50,000 Single-Day Revenue</div><div class="acbar"></div><div class="acd">Generated &#8377;50,000 in a single day at Snitch, including a personal solo bill of &#8377;12,000 &#8212; the highest in the team.</div></div>
   </div>
 </section>
 
@@ -800,7 +940,7 @@ nav,section,footer{position:relative;z-index:1}
     <div class="rvL d1">
       <p class="ctintro">Whether you're looking for a creative marketer, an AI-powered campaign, or simply want to talk strategy &#8212; I'm always open to great conversations and better opportunities.</p>
       <div class="ctlinks">
-        <a href="mailto:mfaazil003@gmail.com" class="ctlnk"><span class="ctk">Email</span><span class="ctv">mfaazil003@gmail.com</span><span class="cta2">&#8599;</span></a>
+        <a href="mailto:mfaazil003@gmail.com" class="ctlnk"><span class="ctk">Email</span><span class="ctv">mfaazil003@gmail.com</span></span></span><span class="cta2">&#8599;</span></a>
         <a href="tel:+919701010140" class="ctlnk"><span class="ctk">Phone</span><span class="ctv">+91-9701010140</span><span class="cta2">&#8599;</span></a>
         <a href="https://linkedin.com/in/faazil-m" target="_blank" class="ctlnk"><span class="ctk">LinkedIn</span><span class="ctv">linkedin.com/in/faazil-m</span><span class="cta2">&#8599;</span></a>
         <a href="#" class="ctlnk"><span class="ctk">Location</span><span class="ctv">Chennai, India</span><span class="cta2">&#8599;</span></a>
@@ -985,6 +1125,7 @@ function revealOut(el) {
 }
 
 var observer = new IntersectionObserver(function(entries) {
+  if (window._fpActive) return;
   entries.forEach(function(e) {
     if (e.isIntersecting) revealIn(e.target);
     else revealOut(e.target);
@@ -1005,6 +1146,7 @@ skrowEls.forEach(function(el) {
 });
 
 var skSectionObs = new IntersectionObserver(function(entries) {
+  if (window._fpActive) return;
   entries.forEach(function(e) {
     var rows = e.target.querySelectorAll('.skrow');
     if (e.isIntersecting) {
@@ -1032,6 +1174,7 @@ if (skgrid) skSectionObs.observe(skgrid);
 
 // ── SKILL BARS – bidirectional fill ──────────────────────────────────────────
 var skObs = new IntersectionObserver(function(entries) {
+  if (window._fpActive) return;
   entries.forEach(function(e) {
     var bars = e.target.querySelectorAll('.skbf');
     if (e.isIntersecting) {
@@ -1051,6 +1194,7 @@ if (skgrid) skObs.observe(skgrid);
 
 // ── LANGUAGE BARS – bidirectional fill ───────────────────────────────────────
 var langObs = new IntersectionObserver(function(entries) {
+  if (window._fpActive) return;
   entries.forEach(function(e) {
     var fills = e.target.querySelectorAll('.lang-bar-fill');
     if (e.isIntersecting) {
@@ -1072,6 +1216,7 @@ if (lgrid) langObs.observe(lgrid);
 // ── LANGUAGE CARDS – clip-path entrance + name spring + bar shimmer ──────────
 var langCards = document.querySelectorAll('.lang-card');
 var langCardObs = new IntersectionObserver(function(entries) {
+  if (window._fpActive) return;
   entries.forEach(function(e) {
     var cards = e.target.querySelectorAll('.lang-card');
     if (e.isIntersecting) {
@@ -1146,6 +1291,7 @@ if (bgEl) bgEl.style.willChange = 'transform';
   var links=document.querySelectorAll('.nlinks a');
   if(!links.length) return;
   var io=new IntersectionObserver(function(entries){
+    if(window._fpActive) return;
     entries.forEach(function(e){
       if(e.isIntersecting){
         links.forEach(function(a){ a.classList.remove('active'); });
@@ -1157,9 +1303,335 @@ if (bgEl) bgEl.style.willChange = 'transform';
   sections.forEach(function(s){ io.observe(s); });
 })();
 
-// ── MOBILE MENU ───────────────────────────────────────────────────────────────
+// ── MOBILE MENU ─────────────────────────────────────────────────────────────
 function openMob()  { document.getElementById('mob').classList.add('on'); }
 function closeMob() { document.getElementById('mob').classList.remove('on'); }
+
+// ══════════════════════════════════════════════════════════════════════════
+// FULL-PAGE SCROLL ENGINE  ─  infinite loop · card-swap · per-section reveal
+// ══════════════════════════════════════════════════════════════════════════
+(function () {
+  'use strict';
+
+  // Disable all IntersectionObserver reveal logic — this engine owns it
+  window._fpActive = true;
+
+  var DUR        = 650;
+  var EASE_SLIDE = 'transform ' + DUR + 'ms cubic-bezier(.65,0,.35,1)';
+  var EASE_IN    = 'opacity .65s cubic-bezier(.16,1,.3,1),transform .65s cubic-bezier(.16,1,.3,1)';
+
+  var slides   = Array.from(document.querySelectorAll('section[id]'));
+  var total    = slides.length;
+  var current  = 0;
+  var busy     = false;
+
+  var overlay  = document.getElementById('fp-overlay');
+
+  // Move footer inside contact so it scrolls with that section
+  var footer  = document.querySelector('footer');
+  var contact = document.getElementById('contact');
+  if (footer && contact && !contact.contains(footer)) contact.appendChild(footer);
+
+  // ── Init slide positions ────────────────────────────────────────────────
+  slides.forEach(function (s, i) {
+    s.classList.add('fp-section');
+    s.style.transform = i === 0 ? 'translateY(0)' : 'translateY(100%)';
+    s.style.zIndex    = i === 0 ? '2' : '1';
+    if (i === 0) s.classList.add('fp-active');
+  });
+
+  // ── Section indicator elements ────────────────────────────────────────
+  var fpArcRing = document.getElementById('fp-arc-ring');
+  var fpNum     = document.getElementById('fp-num');
+  var fpOrb     = document.getElementById('fp-orb');
+  var fpName    = document.getElementById('fp-name');
+  var ARC_CIRC  = 2 * Math.PI * 19.5; // 122.52px
+
+  var sectionLabels = {
+    home:'Home', about:'About', education:'Education',
+    achievements:'Awards', projects:'Projects', experience:'Experience',
+    skills:'Skills', languages:'Languages', contact:'Contact'
+  };
+  var darkSections = { contact: true };
+
+  // ── UI refresh ──────────────────────────────────────────────────────────
+  function refreshUI (i) {
+    // Arc progress — fill clockwise from 0 (first) to full (last)
+    var pct = total > 1 ? i / (total - 1) : 0;
+    var offset = ARC_CIRC * (1 - pct);
+    if (fpArcRing) fpArcRing.style.strokeDashoffset = offset;
+    // Orbiting dot — rotates to arc endpoint angle (0deg = top, clockwise)
+    var deg = pct * 360;
+    if (fpOrb) fpOrb.style.transform = 'rotate(' + deg + 'deg)';
+    // Bold section number
+    if (fpNum) fpNum.textContent = (i + 1 < 10 ? '0' : '') + (i + 1);
+    // Section name crossfade (slide up)
+    if (fpName) {
+      var old = fpName.querySelector('.fp-n-in');
+      var ns  = document.createElement('span');
+      ns.className   = 'fp-n-out';
+      ns.textContent = sectionLabels[slides[i].id] || slides[i].id;
+      fpName.appendChild(ns);
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          if (old) old.className = 'fp-n-out';
+          ns.className = 'fp-n-in';
+          setTimeout(function () { if (old && old.parentNode) old.parentNode.removeChild(old); }, 420);
+        });
+      });
+    }
+    // Dark/light switch
+    if (darkSections[slides[i].id]) document.body.classList.add('fp-dark');
+    else document.body.classList.remove('fp-dark');
+    // Nav link active state
+    document.querySelectorAll('.nlinks a').forEach(function (a) {
+      a.classList.toggle('active', a.getAttribute('href') === '#' + slides[i].id);
+    });
+  }
+
+  // ── Core transition ─────────────────────────────────────────────────────
+  function goTo (idx, dir) {
+    if (busy) return;
+    // ONE-WAY LOOP: last → first only (scroll down from last = go first)
+    // Scrolling up from first = do nothing (clamp at 0)
+    if (idx < 0) return;                         // clamp: no wrap backwards from first
+    if (idx >= total) idx = 0;                   // loop: last → first on scroll down
+    if (idx === current) return;
+    busy = true;
+
+    var from = slides[current];
+    var to   = slides[idx];
+    var sign = dir > 0 ? 1 : -1;
+
+    to.style.transition = 'none';
+    to.style.transform  = 'translateY(' + (sign * 100) + '%)';
+    to.style.zIndex     = '3';
+    from.style.zIndex   = '2';
+    to.classList.remove('fp-active');
+
+    if (overlay) {
+      overlay.classList.add('fp-flash');
+      setTimeout(function () { overlay.classList.remove('fp-flash'); }, 240);
+    }
+
+    void to.offsetHeight;
+
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        to.style.transition   = EASE_SLIDE;
+        from.style.transition = EASE_SLIDE;
+        to.style.transform    = 'translateY(0)';
+        from.style.transform  = 'translateY(' + (-sign * 100) + '%)';
+
+        setTimeout(function () {
+          from.style.zIndex = '1';
+          to.style.zIndex   = '2';
+          from.classList.remove('fp-active');
+          to.classList.add('fp-active');
+          current = idx;
+          busy    = false;
+          refreshUI(current);
+          resetReveal(from);
+          fireReveal(to);
+        }, DUR + 30);
+      });
+    });
+  }
+
+  // ── Input handlers ──────────────────────────────────────────────────────
+  // Trackpad: accumulate deltaY until threshold; mouse: fire on first large event.
+  // ── Wheel / trackpad: single boolean lock, works on all input types ─────────
+  var scrollLocked = false;
+  var tpAccum      = 0;      // trackpad delta accumulator
+  var tpTimer      = null;   // idle-reset timer
+  var LOCK_DUR     = DUR + 180; // lock duration after a goTo fires
+
+  function scrollNav (dir) {
+    if (scrollLocked || busy) return;
+    scrollLocked = true;
+    tpAccum = 0;
+    if (tpTimer) { clearTimeout(tpTimer); tpTimer = null; }
+    setTimeout(function () { scrollLocked = false; }, LOCK_DUR);
+    goTo(current + dir, dir);
+  }
+
+  window.addEventListener('wheel', function (e) {
+    e.preventDefault();
+    if (scrollLocked || busy) { tpAccum = 0; return; }
+
+    var abs = Math.abs(e.deltaY);
+    var dir = e.deltaY > 0 ? 1 : -1;
+
+    // Mouse wheel — large discrete step, fire instantly
+    if (abs >= 50) { scrollNav(dir); return; }
+
+    // Trackpad — accumulate small increments
+    tpAccum += e.deltaY;
+    if (tpTimer) clearTimeout(tpTimer);
+    tpTimer = setTimeout(function () { tpAccum = 0; tpTimer = null; }, 250);
+
+    if (Math.abs(tpAccum) >= 45) { scrollNav(dir); }
+  }, { passive: false });
+
+  var ty0 = 0, tx0 = 0;
+  window.addEventListener('touchstart', function (e) {
+    ty0 = e.touches[0].clientY;
+    tx0 = e.touches[0].clientX;
+  }, { passive: true });
+  window.addEventListener('touchend', function (e) {
+    var dy = ty0 - e.changedTouches[0].clientY;
+    var dx = Math.abs(tx0 - e.changedTouches[0].clientX);
+    if (Math.abs(dy) < 50 || Math.abs(dy) < dx * 1.4) return;
+    if (dy > 0) goTo(current + 1,  1);
+    if (dy < 0) goTo(current - 1, -1);
+  }, { passive: true });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowDown' || e.key === 'PageDown') { e.preventDefault(); goTo(current + 1,  1); }
+    if (e.key === 'ArrowUp'   || e.key === 'PageUp')   { e.preventDefault(); goTo(current - 1, -1); }
+    if (e.key === 'Home') { e.preventDefault(); goTo(0, -1); }
+    if (e.key === 'End')  { e.preventDefault(); goTo(total - 1, 1); }
+  });
+
+  document.querySelectorAll('a[href^="#"]').forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      var id  = (a.getAttribute('href') || '').slice(1);
+      var idx = slides.findIndex(function (s) { return s.id === id; });
+      if (idx !== -1) { e.preventDefault(); goTo(idx, idx >= current ? 1 : -1); }
+    });
+  });
+
+  // ── Section reveal animations ───────────────────────────────────────────
+  function fireReveal (sec) {
+    var d0 = 80;
+    sec.querySelectorAll('.sc').forEach(function (el) {
+      setTimeout(function () {
+        el.querySelectorAll('.c').forEach(function (c, i) {
+          c.style.transition      = 'opacity .42s cubic-bezier(.16,1,.3,1),transform .42s cubic-bezier(.16,1,.3,1)';
+          c.style.transitionDelay = (i * 24 + 40) + 'ms';
+          c.style.opacity         = '1';
+          c.style.transform       = 'translate3d(0,0,0)';
+        });
+      }, d0);
+    });
+    sec.querySelectorAll('.rv,.rvL,.rvR,.rvS').forEach(function (el) {
+      var dd = el.classList.contains('d1') ? 70 : el.classList.contains('d2') ? 140 : el.classList.contains('d3') ? 210 : 0;
+      setTimeout(function () {
+        el.style.willChange      = 'opacity,transform';
+        el.style.transition      = EASE_IN;
+        el.style.transitionDelay = dd + 'ms';
+        el.classList.add('in');
+        setTimeout(function () { el.style.willChange = 'auto'; }, 800);
+      }, d0);
+    });
+    sec.querySelectorAll('.sbar').forEach(function (el) {
+      setTimeout(function () {
+        el.style.transition = 'width .9s cubic-bezier(.16,1,.3,1) .12s';
+        el.style.width      = '44px';
+      }, d0 + 50);
+    });
+    sec.querySelectorAll('.acard').forEach(function (el, i) {
+      setTimeout(function () {
+        // Reset to hidden first (no transition), then rAF to let browser paint,
+        // then set transition + reveal so animation always fires cleanly
+        el.style.transition = 'none';
+        el.style.clipPath   = 'inset(100% 0 0 0)';
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () {
+            el.style.transition = 'clip-path .72s cubic-bezier(.16,1,.3,1),background .4s,transform .4s,box-shadow .4s';
+            el.style.clipPath   = 'inset(0% 0 0 0)';
+            var ab = el.querySelector('.acbar');
+            if (ab) {
+              ab.style.transition = 'none';
+              ab.style.width = '0';
+              setTimeout(function () {
+                ab.style.transition = 'width .45s cubic-bezier(.16,1,.3,1)';
+                ab.style.width = '22px';
+              }, 520);
+            }
+          });
+        });
+      }, d0 + 120 + i * 100);
+    });
+    sec.querySelectorAll('.skrow').forEach(function (row, i) {
+      setTimeout(function () {
+        row.style.willChange      = 'opacity,transform';
+        row.style.transition      = 'opacity .55s cubic-bezier(.16,1,.3,1),transform .55s cubic-bezier(.16,1,.3,1)';
+        row.style.transitionDelay = (i * 45) + 'ms';
+        row.style.opacity         = '1';
+        row.style.transform       = 'translate3d(0,0,0)';
+        setTimeout(function () { row.style.willChange = 'auto'; }, 650 + i * 45);
+      }, d0 + 100);
+    });
+    sec.querySelectorAll('.skbf').forEach(function (b, i) {
+      setTimeout(function () {
+        b.style.transitionDelay = (i * 60 + 160) + 'ms';
+        b.style.transform       = 'scaleX(' + b.dataset.w + ')';
+      }, d0 + 260);
+    });
+    sec.querySelectorAll('.lang-card').forEach(function (card, i) {
+      setTimeout(function () {
+        card.classList.add('lc-in');
+        var wrap = card.querySelector('.lang-bar-wrap');
+        if (wrap) setTimeout(function () { wrap.classList.add('shimmer'); }, 900);
+      }, d0 + 140 + i * 90);
+    });
+    sec.querySelectorAll('.lang-bar-fill').forEach(function (b, i) {
+      setTimeout(function () {
+        b.style.transitionDelay = (i * 100 + 50) + 'ms';
+        b.style.transform       = 'scaleX(' + b.dataset.w + ')';
+      }, d0 + 260);
+    });
+  }
+
+  function resetReveal (sec) {
+    sec.querySelectorAll('.sc .c').forEach(function (c) {
+      c.style.transition = 'none';
+      c.style.transitionDelay = '0ms';
+      c.style.opacity = '0';
+      c.style.transform = 'translate3d(0,8px,0)';
+    });
+    sec.querySelectorAll('.rv,.rvL,.rvR,.rvS').forEach(function (el) {
+      el.style.transition = 'none';
+      el.style.transitionDelay = '0ms';
+      el.classList.remove('in');
+    });
+    sec.querySelectorAll('.sbar').forEach(function (el) {
+      el.style.transition = 'none'; el.style.width = '0';
+    });
+    sec.querySelectorAll('.acard').forEach(function (el) {
+      el.style.transition = 'none';
+      el.style.clipPath   = 'inset(100% 0 0 0)';
+      var ab = el.querySelector('.acbar');
+      if (ab) { ab.style.transition = 'none'; ab.style.width = '0'; }
+    });
+    sec.querySelectorAll('.skrow').forEach(function (row) {
+      row.style.transition = 'none';
+      row.style.transitionDelay = '0ms';
+      row.style.opacity   = '0';
+      row.style.transform = 'translate3d(-16px,0,0)';
+    });
+    sec.querySelectorAll('.skbf').forEach(function (b) {
+      b.style.transition = 'none';
+      b.style.transitionDelay = '0ms';
+      b.style.transform = 'scaleX(0)';
+    });
+    sec.querySelectorAll('.lang-card').forEach(function (card) {
+      card.classList.remove('lc-in');
+      var wrap = card.querySelector('.lang-bar-wrap');
+      if (wrap) wrap.classList.remove('shimmer');
+    });
+    sec.querySelectorAll('.lang-bar-fill').forEach(function (b) {
+      b.style.transitionDelay = '0ms';
+      b.style.transform = 'scaleX(0)';
+    });
+  }
+
+  // Reset all non-active sections on boot
+  for (var i = 1; i < total; i++) resetReveal(slides[i]);
+  refreshUI(0);
+
+})();
 </script>
 </body>
 </html>
